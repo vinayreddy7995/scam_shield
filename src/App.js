@@ -51,7 +51,12 @@ function App() {
       const data = await response.json();
 
       if (data.error) {
-        alert(`API Error: ${data.error.message}`);
+        // Friendly alert if free-tier rate limit is triggered
+        if (data.error.code === 429 || data.error.message?.toLowerCase().includes("quota")) {
+          alert("⏳ Free Tier Rate Limit hit! Please wait 15 seconds and try clicking 'Analyze Message' again.");
+        } else {
+          alert(`API Error: ${data.error.message}`);
+        }
         setLoading(false);
         return;
       }
