@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+// Read key safely from environment variables
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY; 
 
 function App() {
@@ -13,7 +14,7 @@ function App() {
     if (!message.trim()) return;
 
     if (!GEMINI_API_KEY) {
-      alert("API Key missing! Check Vercel environment variables.");
+      alert("API Key missing! Make sure REACT_APP_GEMINI_API_KEY is set in Vercel.");
       return;
     }
 
@@ -36,7 +37,7 @@ function App() {
 
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
