@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-// Read key safely from environment variables
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY; 
 
 function App() {
@@ -14,7 +13,7 @@ function App() {
     if (!message.trim()) return;
 
     if (!GEMINI_API_KEY) {
-      alert("API Key missing! Make sure REACT_APP_GEMINI_API_KEY is set in Vercel.");
+      alert("API Key missing! Check Vercel environment variables.");
       return;
     }
 
