@@ -3,13 +3,6 @@ import React, { useState } from 'react';
 // Read key safely from environment variables
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY; 
 
-// Stable, supported models in order of attempt
-const MODELS_TO_TRY = [
-  "gemini-2.5-flash",
-  "gemini-2.5-pro",
-  "gemini-1.5-flash"
-];
-
 function App() {
   const [sender, setSender] = useState('');
   const [message, setMessage] = useState('');
@@ -42,45 +35,34 @@ function App() {
       "recommended_action": string
     }`;
 
-    let lastError = null;
-    let parsedContent = null;
-
-    for (const model of MODELS_TO_TRY) {
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: promptText }] }],
-              generationConfig: { responseMimeType: "application/json" }
-            })
-          }
-        );
-
-        const data = await response.json();
-
-        if (data.error) {
-          lastError = data.error.message;
-          console.warn(`Model ${model} unavailable, trying next...`);
-          continue;
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptText }] }],
+            generationConfig: { responseMimeType: "application/json" }
+          })
         }
+      );
 
-        parsedContent = JSON.parse(data.candidates[0].content.parts[0].text);
-        break; // Successfully got response!
-      } catch (err) {
-        lastError = err.message;
+      const data = await response.json();
+
+      if (data.error) {
+        alert(`API Error: ${data.error.message}`);
+        setLoading(false);
+        return;
       }
-    }
 
-    if (parsedContent) {
+      const parsedContent = JSON.parse(data.candidates[0].content.parts[0].text);
       setResult(parsedContent);
-    } else {
-      alert(`API Traffic Error: ${lastError || "High traffic. Retry in 10 seconds."}`);
+    } catch (err) {
+      alert(`Error running analysis: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
