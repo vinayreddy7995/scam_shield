@@ -1,0 +1,9 @@
+# Local environment variables
+.env
+.env.local
+
+# Dependency folder
+node_modules/
+
+# Build production folder
+/build
