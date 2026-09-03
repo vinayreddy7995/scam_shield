@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
-// Read key safely from environment variables (No hardcoded secret!)
+// Read key safely from environment variables
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY; 
 
-// Fallback models in case of high demand traffic on free tier
+// Stable, supported models in order of attempt
 const MODELS_TO_TRY = [
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
-  "gemini-2.0-flash-exp"
+  "gemini-2.5-flash",
+  "gemini-2.5-pro",
+  "gemini-1.5-flash"
 ];
 
 function App() {
@@ -21,7 +21,7 @@ function App() {
     if (!message.trim()) return;
 
     if (!GEMINI_API_KEY) {
-      alert("API Key missing! Make sure REACT_APP_GEMINI_API_KEY is set in your .env file or Vercel dashboard.");
+      alert("API Key missing! Make sure REACT_APP_GEMINI_API_KEY is set in Vercel.");
       return;
     }
 
@@ -45,7 +45,6 @@ function App() {
     let lastError = null;
     let parsedContent = null;
 
-    // Loop through fallback models if high demand strikes
     for (const model of MODELS_TO_TRY) {
       try {
         const response = await fetch(
@@ -64,12 +63,12 @@ function App() {
 
         if (data.error) {
           lastError = data.error.message;
-          console.warn(`Model ${model} failed/busy. Trying next...`);
+          console.warn(`Model ${model} unavailable, trying next...`);
           continue;
         }
 
         parsedContent = JSON.parse(data.candidates[0].content.parts[0].text);
-        break; // Got a valid response, stop checking models
+        break; // Successfully got response!
       } catch (err) {
         lastError = err.message;
       }
@@ -78,7 +77,7 @@ function App() {
     if (parsedContent) {
       setResult(parsedContent);
     } else {
-      alert(`API Traffic Error: ${lastError || "High server traffic. Please try again in 10 seconds."}`);
+      alert(`API Traffic Error: ${lastError || "High traffic. Retry in 10 seconds."}`);
     }
 
     setLoading(false);
